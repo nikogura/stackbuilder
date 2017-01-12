@@ -4,5 +4,4 @@ machine:
 
 test:
   post:
-    - which python
-    - PYTHONPATH=./ bin/stackbuilder -c stack.yml -dvb
+    - PYTHONPATH=./ python bin/stackbuilder -c stack.yml -dvb
