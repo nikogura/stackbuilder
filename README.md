@@ -2,6 +2,8 @@
 
 Stackbuilder is a tool to build stacks of software from multiple sources.
 
+## Build Status: [![CircleCI](https://circleci.com/gh/nikogura/stackbuilder.svg?style=svg)](https://circleci.com/gh/nikogura/stackbuilder)
+
 ## Why?
 
 If you've ever built an application stack, you'll know that there are all sorts of ways to get the pieces on a box, and lots of ways you can link them together.
