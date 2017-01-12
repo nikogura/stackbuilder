@@ -3,5 +3,5 @@ machine:
     version: 2.7
 
 test:
-  - cd tests && python unittests.py
-  - PYTHONPATH=./ bin/stackbuilder -c stack.yml -dvb
+  post:
+    - PYTHONPATH=./ bin/stackbuilder -c stack.yml -dvb
