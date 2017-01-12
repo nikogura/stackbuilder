@@ -2,6 +2,3 @@ machine:
   python:
     version: 2.7
 
-test:
-  override:
-    - bash buildscripts/centos6.sh
