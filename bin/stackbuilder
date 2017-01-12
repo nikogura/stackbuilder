@@ -1,4 +1,4 @@
-#!/opt/stackbuilder/bin/python
+#!/usr/bin/python
 
 import sys
 import getopt
