@@ -12,9 +12,32 @@ If you're really lucky you have up to date packages from your distribution and c
 
 For the rest of us there's Stackmaker, a framework that allows you to specify what your components are, where they come from, and how to build them to make a complete working stack, and reproduce/ rebuild it on demand when a component needs updating or you need something almost like it, but slightly different.
 
+## Advantages
+
+Using Stackbuilder you can have multiple stacks installed in parallel on different paths, and the streams won't cross.  
+
+You could have 5 different versions of OpenSSL, supporting 5 different apps on 5 different paths, and it'll all work.  Granted, you'll burn a lot of disk space, 
+but storage is cheap, and while it's great to reuse shared resources, but all to often each app has it's own requirements and it's own schedule.  We often have to support any possible combination of configurations.  It's just the nature of hte job.
+
 ## Usage
 
     stackbuilder -c /path/to/stack.yml -dvb 
+    
+## Tricks
+
+Here's one of the real tricks:
+
+     LDFLAGS=-Wl,-rpath,${libdir}
+     
+What this does is it appends the lib dir of the stack to the run-time library path.  Without this, there's a chance that, regardless of your LD_LIBRARY_PATH when you built the stack, you can find that you're loading a different set of libraries.
+
+I personally found this problem with multiple versions of OpenSSL being installed on a box.  We had the right libraries installed, but when the app spun up, it grabbed an old and vulnerable OpenSSL with weak ciphers.  Not a good thing when you're working on credit card systems.
+
+With this little trick, you ensure that you're always loading your libraries first, instead of what else is there on the box.
+
+It does, however mean that the stack will function only at the path it was built for.  You're still dynamically loading, but your stack isn't protable.
+
+It may be possible to use a relative path.  I'll have to investigate that when I have time.
     
 ## Example stack.yml
 
