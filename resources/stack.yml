@@ -1,0 +1,64 @@
+name: fargle
+before_install:
+  - pwd
+  - cat /etc/hosts
+
+stack:
+  version: 1.2.3
+
+  locations:
+    rootdir: /apps/fargle/tools
+    libdir: /apps/fargle/tools/lib
+    docdir: /apps/fargle/tools/doc
+  gpgbinary: /usr/local/bin/gpg
+  components:
+    - name: pcre
+      version: 8.38
+      src:
+        type: tar.bz2
+        url: http://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-${version}.tar.bz2
+      chk:
+        type: gpg
+        url: http://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-${version}.tar.bz2.sig
+        key: FB0F43D8
+
+      build:
+        steps:
+          - >
+            ./configure --prefix=${libdir}/${name} --docdir=${docdir}
+            --enable-unicode-properties
+            --enable-pcre32
+            --enable-pcregrep-libz
+            --enable-pcregrep-libbz2
+            --enable-pcretest-libreadline
+            --disable-static
+
+          - make
+          - make install
+
+    - name: httpd
+      version: 2.4.18
+      src:
+        type: tar.bz2
+        url: https://archive.apache.org/dist/httpd/httpd-${version}.tar.bz2
+      chk:
+        type: sha1
+        url: https://archive.apache.org/dist/httpd/httpd-${version}.tar.bz2.sha1
+      build:
+        steps:
+          - >
+            make distclean
+            ./configure
+            --prefix=${rootdir}/httpd-${version}
+            --enable-so
+            --enable-auth-digest
+            --enable-rewrite
+            --enable-setenvif
+            --enable-mime
+            --enable-deflate
+            --enable-headers
+            --with-pcre=${libdir}/pcre
+            --with-included-apr
+          - make
+          - make install
+

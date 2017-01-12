@@ -1,0 +1,52 @@
+#!/opt/stackbuilder/bin/python
+
+import sys
+import getopt
+from stackbuilder.Stackbuilder import Stackbuilder
+
+config = None
+tempdir = None
+download = False
+build = False
+verbose = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'hc:t:dbv',['config=','tempdir=','download', 'build','verbose'])
+
+    for opt, arg in opts:
+        if opt == '-h':
+            print "Stackbuilder.py -c <config> [-db]\n" \
+                  "-d download and verify files\n" \
+                  "-b build components\n" \
+                  "-t tempdir"
+            sys.exit()
+        elif opt in ("-c", "--config"):
+            config = arg
+        elif opt in ("-t", "--tempdir"):
+            tempdir = arg
+        elif opt in ("-d", "--download"):
+            download = True
+        elif opt in ("-b", "--build"):
+            build = True
+        elif opt in ("-v", "--verbose"):
+            verbose = True
+
+    if config is not None:
+        sb = Stackbuilder(config, tempdir)
+        sb.verbose(verbose)
+
+        sb.runPreBuildSteps()
+
+        if download:
+            print "Downloading Components"
+            sb.downloadComponents()
+
+            if build:
+                print "Building Components"
+                sb .unpackAndBuildComponents()
+
+    else:
+        print "No config.  Can't continue."
+except getopt.GetoptError:
+    print 'Stackbuilder.py -c <config> [-db]'
+    sys.exit(2)

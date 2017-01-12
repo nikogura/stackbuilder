@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -e
+
+BUILDNUMBER=$1
+
+echo "clean the workspace"
+rm -f *gz
+
+wget http://download.fedoraproject.org/pub/epel/7/x86_64/epel-release-7-8.noarch.rpm
+rpm -ivh epel-release-7-8.noarch.rpm
+
+echo "Installing Packages"
+sudo yum install -y \
+autoconf \
+bison \
+flex \
+gcc \
+gcc-c++ \
+kernel-devel \
+make \
+m4 \
+patch \
+gettext-devel \
+zlib-devel \
+bzip2-devel \
+bc \
+PyYAML \
+python-gnupg \
+python-requests \
+rpmbuild \
+rpmdevtools
+
+STACKBUILDER_HOME="/opt/stackbuilder"
+
+echo "Making $STACKBUILDER_HOME"
+sudo rm -rf $STACKBUILDER_HOME
+sudo mkdir -p $STACKBUILDER_HOME
+sudo chmod 777 $STACKBUILDER_HOME
+
+echo "Running Stackbuilder to Install Stackbuilder"
+python Stackbuilder.py -c app.yml -dvb
+
+echo "Installing Stackbuilder Dependencies"
+LDFLAGS=-Wl,-rpath,$STACKBUILDER_HOME/lib CFLAGS=-I$STACKBUILDER_HOME/include $STACKBUILDER_HOME/bin/pip install -r requirements.txt
+
+echo "Assembling Stackbuilder Components"
+mkdir $STACKBUILDER_HOME/lib/python2.7/site-packages/stackbuilder
+cp -r * $STACKBUILDER_HOME/lib/python2.7/site-packages/stackbuilder
+
+echo "Creating a convenience link in $STACKBUILDER_HOME/bin"
+ln -s $STACKBUILDER_HOME/lib/python2.7/site-packages/stackbuilder/bin/stackbuilder $STACKBUILDER_HOME/bin/stackbuilder
+ln -s $STACKBUILDER_HOME/lib/python2.7/site-packages/stackbuilder/bin/stackbuilder.sh $STACKBUILDER_HOME/bin/stackbuilder.sh
+
+sudo chmod 755 $STACKBUILDER_HOME
+
+echo "Creating Tarball"
+tar czf stackbuilder-oel7-$BUILDNUMBER.tar.gz -C /opt stackbuilder
